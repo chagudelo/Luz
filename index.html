@@ -239,9 +239,8 @@
     <div class="eslogan">La energía del sol, a un mensaje de distancia.</div>
     <p>La asesora virtual de Sunny App: atiende a los clientes por WhatsApp a cualquier hora, evalúa su proyecto solar y deja el lead listo para el asesor de su zona.</p>
     <form id="form-inicio">
-      <input id="nombre" type="text" placeholder="Tu nombre" autocomplete="name" maxlength="60" required>
       <input id="celular" type="tel" inputmode="numeric" placeholder="Tu celular (10 dígitos)" autocomplete="tel-national" pattern="3\d{9}" maxlength="10" required>
-      <div class="ayuda">En WhatsApp, Luz recibe tu nombre y tu número automáticamente; aquí te los pedimos para simularlo.</div>
+      <div class="ayuda">En WhatsApp, Luz recibe tu número automáticamente; aquí te lo pedimos para simularlo. Lo demás te lo preguntará ella.</div>
       <button type="submit">Conversar con Luz</button>
     </form>
     <div class="nota">Versión de demostración para el equipo de Sunny App. Escribe como lo haría un cliente; también puedes enviar una foto o un PDF de tu factura de energía.</div>
@@ -295,7 +294,7 @@ const $ = (id) => document.getElementById(id);
 const chat = $("chat"), texto = $("texto"), estado = $("estado");
 
 // ---------- Estado persistente (solo en este navegador) ----------
-let s = cargar() || { waId: null, nombre: "", celular: "", mensajes: [] };
+let s = cargar() || { waId: null, celular: "", mensajes: [] };
 function cargar() { try { return JSON.parse(localStorage.getItem(CLAVE)); } catch { return null; } }
 function guardar() {
   try {
@@ -381,7 +380,7 @@ async function despachar() {
   const resto = lote.filter((p) => p.archivo && p !== conArchivo);
   pendientes.unshift(...resto);
   const usados = lote.filter((p) => !resto.includes(p));
-  const cuerpo = { wa_id: s.waId, nombre: s.nombre, texto: usados.map((p) => p.texto).filter(Boolean).join("\n") };
+  const cuerpo = { wa_id: s.waId, texto: usados.map((p) => p.texto).filter(Boolean).join("\n") };
   if (conArchivo) cuerpo.archivo = conArchivo.archivo;
   s.mensajes.filter((m) => m.dir === "out").forEach((m) => { m.leido = true; m._nodo?.querySelector(".meta")?.classList.add("leido"); });
   escribiendo(true);
@@ -462,9 +461,9 @@ $("m-nueva").onclick = async () => {
   guardar(); pintarTodo();
 };
 $("m-cambiar").onclick = () => {
-  s = { waId: null, nombre: s.nombre, celular: "", mensajes: [] };
+  s = { waId: null, celular: "", mensajes: [] };
   guardar();
-  $("nombre").value = s.nombre; $("celular").value = "";
+  $("celular").value = "";
   $("bienvenida").classList.remove("oculta");
 };
 $("m-acerca").onclick = () => alert(
@@ -481,7 +480,6 @@ $("form-inicio").onsubmit = (e) => {
   e.preventDefault();
   const celular = $("celular").value.replace(/\D/g, "");
   if (!/^3\d{9}$/.test(celular)) { alert("Escribe un celular colombiano de 10 dígitos que empiece por 3."); return; }
-  s.nombre = $("nombre").value.trim();
   if (celular !== s.celular) s.mensajes = [];
   s.celular = celular;
   s.waId = waIdDe(celular);
@@ -492,8 +490,7 @@ $("form-inicio").onsubmit = (e) => {
 };
 
 // Arranque: si ya conversó en este navegador, entra directo al chat
-if (s.waId && s.nombre && s.celular) { $("bienvenida").classList.add("oculta"); pintarTodo(); }
-else if (s.nombre) $("nombre").value = s.nombre;
+if (s.waId && s.celular) { $("bienvenida").classList.add("oculta"); pintarTodo(); }
 </script>
 </body>
 </html>

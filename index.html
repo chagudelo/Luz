@@ -193,6 +193,9 @@
     background: linear-gradient(135deg, var(--ambar), var(--naranja)); color: #fff;
     box-shadow: 0 6px 18px rgba(226, 104, 14, .35);
   }
+  #bienvenida .voz { margin-top: 14px; font-size: 13.5px; color: var(--carbon); background: #FFF4E6; border: 1px solid #F3D9B8; border-radius: 14px; padding: 10px 14px; max-width: 340px; line-height: 1.45; }
+  #bienvenida .voz b { color: var(--naranja); }
+  body.en-chat elevenlabs-convai { display: none; }
   #bienvenida .nota { font-size: 12px; color: var(--texto-2); margin-top: 16px; max-width: 360px; line-height: 1.5; }
 </style>
 </head>
@@ -237,12 +240,13 @@
     <div class="marca">Te presentamos a</div>
     <h2>Luz</h2>
     <div class="eslogan">La energía del sol, a un mensaje de distancia.</div>
-    <p>La asesora virtual de Sunny App: atiende a los clientes por WhatsApp a cualquier hora, evalúa su proyecto solar y deja el lead listo para el asesor de su zona.</p>
+    <p>La asesora virtual de Sunny App: atiende a los clientes por WhatsApp o por voz, a cualquier hora, evalúa su proyecto solar y deja el lead listo para el asesor de su zona.</p>
     <form id="form-inicio">
       <input id="celular" type="tel" inputmode="numeric" placeholder="Tu celular (10 dígitos)" autocomplete="tel-national" pattern="3\d{9}" maxlength="10" required>
       <div class="ayuda">En WhatsApp, Luz recibe tu número automáticamente; aquí te lo pedimos para simularlo. Lo demás te lo preguntará ella.</div>
       <button type="submit">Conversar con Luz</button>
     </form>
+    <div class="voz">🎙️ <b>¿Prefieres hablar?</b> Toca «Hablar con Luz», abajo a la derecha, y conversa con ella por voz. Al terminar, entra al chat con el mismo celular para enviarle tu factura.</div>
     <div class="nota">Versión de demostración para el equipo de Sunny App. Escribe como lo haría un cliente; también puedes enviar una foto o un PDF de tu factura de energía.</div>
   </section>
 
@@ -259,6 +263,7 @@
   <div class="menu" id="menu">
     <button id="m-nueva">Empezar de cero</button>
     <button id="m-cambiar">Probar con otro número</button>
+    <button id="m-voz">Hablar con Luz por voz</button>
     <button id="m-acerca">¿Qué hace Luz?</button>
   </div>
 
@@ -466,9 +471,13 @@ $("m-cambiar").onclick = () => {
   $("celular").value = "";
   $("bienvenida").classList.remove("oculta");
 };
+$("m-voz").onclick = () => {
+  $("celular").value = s.celular || "";
+  $("bienvenida").classList.remove("oculta");
+};
 $("m-acerca").onclick = () => alert(
   "Luz – asesora virtual de Sunny App\n\n" +
-  "• Atiende por WhatsApp a cualquier hora, con un trato cálido y cercano.\n" +
+  "• Atiende por WhatsApp o por voz, a cualquier hora, con un trato cálido y cercano.\n" +
   "• Pide la autorización de datos y conoce el proyecto: ciudad, tipo de inmueble, consumo y factura.\n" +
   "• Lee la foto o el PDF de la factura de energía.\n" +
   "• Califica el lead con los criterios comerciales de Sunny App.\n" +
@@ -489,8 +498,16 @@ $("form-inicio").onsubmit = (e) => {
   texto.focus();
 };
 
+// El botón de voz solo se muestra en la bienvenida (en el chat taparía el botón de enviar)
+const bienvenida = $("bienvenida");
+const sincronizarVoz = () => document.body.classList.toggle("en-chat", bienvenida.classList.contains("oculta"));
+new MutationObserver(sincronizarVoz).observe(bienvenida, { attributes: true, attributeFilter: ["class"] });
+
 // Arranque: si ya conversó en este navegador, entra directo al chat
 if (s.waId && s.celular) { $("bienvenida").classList.add("oculta"); pintarTodo(); }
+sincronizarVoz();
 </script>
+<elevenlabs-convai agent-id="agent_1401m63nhvwmets8a0ypmr0ka594"></elevenlabs-convai>
+<script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
 </body>
 </html>
